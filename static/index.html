@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido Moléculas | Generador Excel</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container">
+        <header class="header">
+            <h1 class="title">Pedido <span>Moléculas</span></h1>
+            <p class="subtitle">Generador inteligente de pedidos en formato Excel</p>
+        </header>
+
+        <section class="glass-card">
+            <form id="generateForm">
+                
+                <div class="input-group">
+                    <label for="pedidoDays">Días de Pedido (PedidoDays)</label>
+                    <div class="select-wrapper">
+                        <select id="pedidoDays" name="pedido_days" required>
+                            <option value="9">9 Días</option>
+                            <option value="14">14 Días</option>
+                            <option value="21">21 Días</option>
+                            <option value="30" selected>30 Días</option>
+                            <option value="45">45 Días</option>
+                            <option value="60">60 Días</option>
+                            <option value="75">75 Días</option>
+                            <option value="90">90 Días</option>
+                            <option value="120">120 Días</option>
+                        </select>
+                        <div class="select-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="numRows">Cantidad de Filas (Límite)</label>
+                    <input type="number" id="numRows" name="num_rows" value="300" min="1" required placeholder="Ej. 300">
+                </div>
+
+                <div class="input-group">
+                    <label>Archivo de Resta (Opcional)</label>
+                    <div class="file-drop-area" id="dropArea">
+                        <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                        <span class="file-msg">Arrastra tu archivo .xlsx o haz clic aquí</span>
+                        <input class="file-input" type="file" id="subtractionFile" name="subtraction_file" accept=".xlsx" >
+                    </div>
+                    <div id="fileInfo" class="file-info hidden">
+                        <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></svg>
+                        <span id="fileName">archivo.xlsx</span>
+                        <button type="button" id="removeFile" title="Eliminar archivo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-primary">
+                    <span class="btn-text">Generar Reporte Excel</span>
+                    <span class="loader hidden"></span>
+                </button>
+            </form>
+            
+            <div id="alertBox" class="alert hidden">
+                <span id="alertMsg"></span>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

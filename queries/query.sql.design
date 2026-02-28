@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Devart (www.devart.com), SQL document design file -->
+<!-- Modifying this generated file will probably render it invalid -->
+<Document>
+  <Properties>
+    <Type>SQL Document Design</Type>
+    <DatabaseProvider>aa8afe9c-7d62-4564-b477-c12e62e0f440</DatabaseProvider>
+    <ProviderVersion>5.8.127.0</ProviderVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </Properties>
+  <Connection Name="10.200.8.5\efficacis3">
+    <Category>00000000-0000-0000-0000-000000000000</Category>
+    <ConnectionString>Data Source=10.200.8.5\efficacis3;Encrypt=False;Integrated Security=False;User ID=sa</ConnectionString>
+    <Database>EnterpriseAdmin_AMC</Database>
+  </Connection>
+  <Views ShowAdditionalViews="False" IsLayoutActiveAttribute="False" MainViewAttribute="Design" MainViewScale="50">
+    <View Name="Design" Visible="True">
+      <Data>
+        <StatementType>Select</StatementType>
+      </Data>
+    </View>
+    <View Name="Code" Visible="True">
+      <Data />
+    </View>
+    <View Name="Data" Active="True" Visible="True" />
+    <View Name="Profiler" Visible="False" />
+    <View Name="PivotGrid" Visible="False" />
+  </Views>
+  <ProfilingMode Enabled="False" />
+  <LiveProfilingMode Enabled="False" />
+</Document>
