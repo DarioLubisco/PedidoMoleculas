@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
     <div class="background-elements">
         <div class="blob blob-1"></div>
@@ -17,15 +19,39 @@
         <div class="blob blob-3"></div>
     </div>
 
-    <main class="container">
-        <header class="header">
-            <h1 class="title">Pedido <span>Moléculas</span></h1>
-            <p class="subtitle">Generador inteligente de pedidos en formato Excel</p>
-        </header>
+    <div class="layout-container">
+        <!-- Sidebar for Categories -->
+        <aside class="sidebar glass-card">
+            <div class="sidebar-header">
+                <h2>Categorías</h2>
+                <span id="categoryCount" class="badge">0 / 0</span>
+            </div>
 
-        <section class="glass-card">
+            <div class="sidebar-toolbar">
+                <input type="text" id="categorySearch" placeholder="🔍 Buscar categoría..." class="search-input">
+                <div class="sidebar-actions">
+                    <button type="button" id="btnSelectAll" class="btn-text-small">Todas</button>
+                    <button type="button" id="btnSelectNone" class="btn-text-small">Ninguna</button>
+                    <button type="button" id="btnInvertSelection" class="btn-text-small">Invertir</button>
+                </div>
+            </div>
+
+            <div class="categories-list-container">
+                <ul id="categoriesList" class="categories-list">
+                    <!-- Categories will be injected here via JS -->
+                    <li class="loading-categories">Cargando categorías...</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content glass-card">
+            <header class="header">
+                <h1 class="title">Pedido <span>Moléculas</span></h1>
+                <p class="subtitle">Generador inteligente de pedidos en formato Excel</p>
+            </header>
+
             <form id="generateForm">
-                
                 <div class="input-group">
                     <label for="pedidoDays">Días de Pedido (PedidoDays)</label>
                     <div class="select-wrapper">
@@ -41,29 +67,38 @@
                             <option value="120">120 Días</option>
                         </select>
                         <div class="select-arrow">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
                         </div>
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="numRows">Cantidad de Filas (Límite)</label>
-                    <input type="number" id="numRows" name="num_rows" value="300" min="1" required placeholder="Ej. 300">
+                    <input type="number" id="numRows" name="num_rows" value="5000" min="1" required
+                        placeholder="Ej. 5000">
                 </div>
 
                 <div class="input-group">
-                    <label>Archivo de Resta (Opcional)</label>
+                    <label>Archivos de Resta (Opcional, Puedes seleccionar varios)</label>
                     <div class="file-drop-area" id="dropArea">
-                        <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                        <span class="file-msg">Arrastra tu archivo .xlsx o haz clic aquí</span>
-                        <input class="file-input" type="file" id="subtractionFile" name="subtraction_file" accept=".xlsx" >
+                        <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" x2="12" y1="3" y2="15" />
+                        </svg>
+                        <span class="file-msg">Arrastra tus archivos .xlsx o haz clic aquí</span>
+                        <input class="file-input" type="file" id="subtractionFiles" name="subtraction_files"
+                            accept=".xlsx" multiple>
                     </div>
-                    <div id="fileInfo" class="file-info hidden">
-                        <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></svg>
-                        <span id="fileName">archivo.xlsx</span>
-                        <button type="button" id="removeFile" title="Eliminar archivo">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                        </button>
+                    <!-- Container to hold the list of selected files -->
+                    <div id="fileListContainer" class="hidden" style="margin-top: 1rem;">
+                        <!-- JS will inject .file-info divs here -->
                     </div>
                 </div>
 
@@ -72,14 +107,14 @@
                     <span class="loader hidden"></span>
                 </button>
             </form>
-            
+
             <div id="alertBox" class="alert hidden">
                 <span id="alertMsg"></span>
             </div>
-        </section>
-
-    </main>
+        </main>
+    </div>
 
     <script src="/static/script.js"></script>
 </body>
+
 </html>

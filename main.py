@@ -1,7 +1,7 @@
 import os
 import io
 import logging
-from typing import Optional
+from typing import Optional, List
 from fastapi import FastAPI, Form, UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -37,11 +37,21 @@ app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 async def root():
     return RedirectResponse(url="/static/index.html")
 
+@app.get("/api/categories")
+async def get_categories():
+    try:
+        categories = processor.fetch_categories()
+        return {"categories": categories}
+    except Exception as e:
+        logging.error(f"Error fetching categories: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/generate")
 async def generate_report(
     pedido_days: str = Form(...),
     num_rows: int = Form(...),
-    subtraction_file: Optional[UploadFile] = File(None)
+    categories: Optional[str] = Form(None),
+    subtraction_files: Optional[List[UploadFile]] = File(None)
 ):
     try:
         # Validate inputs
@@ -50,21 +60,30 @@ async def generate_report(
         if pedido_days not in ['9', '14', '21', '30', '45', '60', '75', '90', '120']:
             raise HTTPException(status_code=400, detail="Invalid Pedido days value.")
 
-        # Process optional subtraction file
-        subtraction_df = None
-        if subtraction_file and subtraction_file.filename:
-            try:
-                content = await subtraction_file.read()
-                subtraction_df = pd.read_excel(io.BytesIO(content))
-            except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Invalid Excel subtraction file: {str(e)}")
+        # Process optional subtraction files
+        subtraction_dfs = []
+        if subtraction_files:
+            for file in subtraction_files:
+                if file.filename:
+                    try:
+                        content = await file.read()
+                        df = pd.read_excel(io.BytesIO(content))
+                        subtraction_dfs.append(df)
+                    except Exception as e:
+                        raise HTTPException(status_code=400, detail=f"Invalid Excel file '{file.filename}': {str(e)}")
 
         # Fetch data
         df = processor.fetch_data()
 
+        # Parse categories list
+        parsed_categories = None
+        if categories:
+            # Assuming categories arrive as a comma-separated string: "Categoria 1,Categoria 2"
+            parsed_categories = [cat.strip() for cat in categories.split(",") if cat.strip()]
+
         # Generate output file in memory
         output_bytes, filename = processor.generate_excel_report_bytes(
-            df, pedido_days, num_rows, subtraction_df
+            df, pedido_days, num_rows, subtraction_dfs, parsed_categories
         )
 
         headers = {
