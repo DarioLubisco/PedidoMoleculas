@@ -40,14 +40,32 @@ class DataProcessor:
 
     def fetch_categories(self):
         try:
-            query = "SELECT CodInst, Descrip FROM dbo.SAINSTA ORDER BY Descrip"
-            logging.info("Fetching categories from database...")
+            # Muestra categorías y su Padre según InsPadre.
+            query = """
+                SELECT CodInst, Descrip, InsPadre 
+                FROM dbo.SAINSTA 
+                ORDER BY Descrip
+            """
+            logging.info("Fetching hierarchical categories from database...")
             with pyodbc.connect(self.connection_string, timeout=int(self.config['TIMEOUT'])) as conn:
                 df = pd.read_sql(query, conn)
-                logging.info(f"Fetched {len(df)} categories.")
-                # Convert to dict format suitable for JSON response: [{'id': '01', 'name': 'VITAMINAS'}, ...]
-                df.columns = ['id', 'name']
-                return df.to_dict(orient='records')
+                
+            logging.info(f"Fetched {len(df)} categories.")
+            
+            # Limpieza básica
+            df = df.dropna(subset=['Descrip']).copy()
+            # Eliminar vacias
+            df = df[df['Descrip'].str.strip() != '']
+            
+            categories = []
+            for _, row in df.iterrows():
+                categories.append({
+                    "id": str(row['CodInst']),
+                    "name": str(row['Descrip']).strip(),
+                    "parentId": str(int(row['InsPadre'])) if pd.notna(row['InsPadre']) else "0"
+                })
+            
+            return categories
         except Exception as e:
             logging.error(f"Failed to fetch categories: {e}")
             raise

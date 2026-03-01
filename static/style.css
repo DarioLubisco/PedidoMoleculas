@@ -216,33 +216,71 @@ body {
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.15rem;
 }
 
-.category-item {
+.nested-categories {
+    list-style: none;
+    padding-left: 1.25rem;
+    margin-top: 0.25rem;
+    border-left: 1px dotted rgba(255, 255, 255, 0.2);
+    display: none;
+    /* Hidden by default if we want collapsible, will toggle via JS */
+}
+
+.nested-categories.open {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.category-row {
     display: flex;
     align-items: center;
-    padding: 0.5rem;
-    border-radius: 8px;
-    cursor: pointer;
+    padding: 0.4rem 0.5rem;
+    border-radius: 6px;
     transition: background-color 0.2s;
     user-select: none;
 }
 
-.category-item:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+.category-row:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.toggle-btn {
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.25rem;
+    transition: transform 0.2s;
+    padding: 0;
+}
+
+.toggle-btn:hover {
+    color: var(--text-main);
+}
+
+.toggle-btn.open svg {
+    transform: rotate(90deg);
 }
 
 .category-item input[type="checkbox"] {
     width: 1.1rem;
     height: 1.1rem;
-    margin-right: 0.75rem;
+    margin-right: 0.5rem;
     accent-color: var(--accent);
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .category-item label {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     cursor: pointer;
     flex-grow: 1;
     white-space: nowrap;
@@ -250,6 +288,16 @@ body {
     text-overflow: ellipsis;
     margin: 0;
     color: var(--text-main);
+}
+
+/* Semi-transparent state for indeterminate checkboxes */
+.category-item input[type="checkbox"]:indeterminate {
+    accent-color: var(--text-muted);
+}
+
+.category-item input[type="checkbox"]:indeterminate+label {
+    color: rgba(248, 250, 252, 0.7);
+    /* Slightly muted text for partial selections */
 }
 
 
