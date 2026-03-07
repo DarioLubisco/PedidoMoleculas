@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=3">
+    <link rel="stylesheet" href="/static/style.css?v=4">
 </head>
 
 <body>
@@ -21,15 +21,16 @@
 
     <div class="layout-container">
         <!-- Sidebar for Categories -->
-        <aside class="sidebar glass-card">
+        <aside class="sidebar glass-card" aria-label="Category Selection">
             <div class="sidebar-header">
                 <h2>Categorías</h2>
                 <span id="categoryCount" class="badge">0 / 0</span>
             </div>
 
             <div class="sidebar-toolbar">
-                <input type="text" id="categorySearch" placeholder="🔍 Buscar categoría..." class="search-input">
-                <div class="sidebar-actions">
+                <input type="search" id="categorySearch" placeholder="🔍 Buscar categoría..." class="search-input"
+                    aria-label="Search categories">
+                <div class="sidebar-actions" role="group" aria-label="Selection actions">
                     <button type="button" id="btnSelectAll" class="btn-text-small">Todas</button>
                     <button type="button" id="btnSelectNone" class="btn-text-small">Ninguna</button>
                     <button type="button" id="btnInvertSelection" class="btn-text-small">Invertir</button>
@@ -37,7 +38,7 @@
             </div>
 
             <div class="categories-list-container">
-                <ul id="categoriesList" class="categories-list">
+                <ul id="categoriesList" class="categories-list" role="listbox" aria-multiselectable="true">
                     <!-- Categories will be injected here via JS -->
                     <li class="loading-categories">Cargando categorías...</li>
                 </ul>
@@ -51,11 +52,11 @@
                 <p class="subtitle">Generador inteligente de pedidos en formato Excel</p>
             </header>
 
-            <form id="generateForm">
+            <form id="generateForm" aria-labelledby="form-title">
                 <div class="input-group">
-                    <label for="pedidoDays">Días de Pedido (PedidoDays)</label>
+                    <label for="pedidoDays" id="lblPedidoDays">Días de Pedido (PedidoDays)</label>
                     <div class="select-wrapper">
-                        <select id="pedidoDays" name="pedido_days" required>
+                        <select id="pedidoDays" name="pedido_days" required aria-labelledby="lblPedidoDays">
                             <option value="9">9 Días</option>
                             <option value="14">14 Días</option>
                             <option value="21">21 Días</option>
@@ -77,24 +78,24 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="numRows">Cantidad de Filas (Límite)</label>
+                    <label for="numRows" id="lblNumRows">Cantidad de Filas (Límite)</label>
                     <input type="number" id="numRows" name="num_rows" value="5000" min="1" required
-                        placeholder="Ej. 5000">
+                        placeholder="Ej. 5000" aria-labelledby="lblNumRows">
                 </div>
 
                 <div class="input-group">
-                    <label>Archivos de Resta (Opcional, Puedes seleccionar varios)</label>
-                    <div class="file-drop-area" id="dropArea">
+                    <label id="lblDropArea">Archivos de Resta (Opcional, Puedes seleccionar varios)</label>
+                    <div class="file-drop-area" id="dropArea" role="button" tabindex="0" aria-labelledby="lblDropArea">
                         <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                             <polyline points="17 8 12 3 7 8" />
                             <line x1="12" x2="12" y1="3" y2="15" />
                         </svg>
                         <span class="file-msg">Arrastra tus archivos .xlsx o haz clic aquí</span>
                         <input class="file-input" type="file" id="subtractionFiles" name="subtraction_files"
-                            accept=".xlsx" multiple>
+                            accept=".xlsx" multiple aria-label="Upload multiple Excel files">
                     </div>
                     <!-- Container to hold the list of selected files -->
                     <div id="fileListContainer" class="hidden" style="margin-top: 1rem;">
@@ -108,7 +109,7 @@
                 </button>
             </form>
 
-            <div id="alertBox" class="alert hidden">
+            <div id="alertBox" class="alert hidden" role="alert" aria-live="assertive">
                 <span id="alertMsg"></span>
             </div>
         </main>

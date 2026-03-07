@@ -1,0 +1,10 @@
+# Global Rules for UI/UX Development
+
+Whenever working on UI, CSS, or Frontend components in this workspace:
+
+1. **PROactive Design Intelligence**: You MUST always consult and apply the guidelines from the `ui-ux-pro-max-skill`.
+2. **Standard of Excellence**: Aim for "Premium" aesthetics by default (Glassmorphism, High-quality typography, Micro-animations).
+3. **Design System Adherence**: Always check for a `design-system/MASTER.md` file in the project. If it exists, follow its color tokens and rules.
+4. **No Placeholders**: Never use generic colors (red, blue, green). Always use curated HSL palettes or the Cobalt/Slate palette from the Pro Max Skill.
+5. **Accessibility**: Implement ARIA roles and contrast checks by default.
+6. **Interaction**: Always include hover and active states (e.g., `scale(0.98)`) to make the UI feel alive.
