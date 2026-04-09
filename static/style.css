@@ -629,16 +629,14 @@ input[type="number"]:focus,
 
 /* Modal and Gear Icon Styles */
 .config-btn-wrapper {
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
+    /* Positioned via inline style in header */
     z-index: 10;
 }
 
 .config-btn {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    color: var(--text-muted);
+    background: var(--accent); /* Blue background to be very visible */
+    border: none;
+    color: white; 
     border-radius: 50%;
     width: 44px;
     height: 44px;
@@ -647,6 +645,7 @@ input[type="number"]:focus,
     justify-content: center;
     cursor: pointer;
     transition: var(--transition);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
 }
 
 .config-btn:hover {
