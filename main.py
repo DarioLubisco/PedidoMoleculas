@@ -4,6 +4,8 @@ import logging
 from typing import Optional, List
 from fastapi import FastAPI, Form, UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse, RedirectResponse
+import base64
+import json
 from fastapi.staticfiles import StaticFiles
 from dotenv import dotenv_values
 import pandas as pd
@@ -51,7 +53,9 @@ async def generate_report(
     pedido_days: str = Form(...),
     num_rows: int = Form(...),
     categories: Optional[str] = Form(None),
-    subtraction_files: Optional[List[UploadFile]] = File(None)
+    subtraction_files: Optional[List[UploadFile]] = File(None),
+    umbral: float = Form(0.0),
+    force_include_codes: Optional[str] = Form(None)
 ):
     try:
         # Validate inputs
@@ -81,15 +85,24 @@ async def generate_report(
             # Assuming categories arrive as a comma-separated string: "Categoria 1,Categoria 2"
             parsed_categories = [cat.strip() for cat in categories.split(",") if cat.strip()]
 
+        # Parse force include codes
+        parsed_force_includes = None
+        if force_include_codes:
+            parsed_force_includes = [code.strip() for code in force_include_codes.split(",") if code.strip()]
+
         # Generate output file in memory
-        output_bytes, filename = processor.generate_excel_report_bytes(
-            df, pedido_days, num_rows, subtraction_dfs, parsed_categories
+        output_bytes, filename, discarded_list = processor.generate_excel_report_bytes(
+            df, pedido_days, num_rows, subtraction_dfs, parsed_categories, umbral, parsed_force_includes
         )
 
-        headers = {
-            'Content-Disposition': f'attachment; filename="{filename}"'
-        }
-        return StreamingResponse(output_bytes, headers=headers, media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        b64_encoded = base64.b64encode(output_bytes.getvalue()).decode('utf-8')
+
+        from fastapi.responses import JSONResponse
+        return JSONResponse(content={
+            "filename": filename,
+            "file_b64": b64_encoded,
+            "discarded_list": discarded_list
+        })
 
     except Exception as e:
         logging.error(f"Error generating report: {str(e)}", exc_info=True)

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=4">
+    <link rel="stylesheet" href="/static/style.css?v=5">
 </head>
 
 <body>
@@ -17,6 +17,13 @@
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
         <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Gear Icon -->
+    <div class="config-btn-wrapper">
+        <button type="button" class="config-btn" id="btnOpenConfig" aria-label="Abrir configuración">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
     </div>
 
     <div class="layout-container">
@@ -84,6 +91,13 @@
                 </div>
 
                 <div class="input-group">
+                    <label for="umbralRotacion" id="lblUmbral">Umbral Mínimo de Rotación Mensual</label>
+                    <input type="number" id="umbralRotacion" name="umbral" value="0.5" step="0.01" min="0" required
+                        placeholder="Ej. 0.5" aria-labelledby="lblUmbral">
+                    <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; display: block;">Productos con rotación inferior a este valor no serán incluidos en el pedido.</span>
+                </div>
+
+                <div class="input-group">
                     <label id="lblDropArea">Archivos de Resta (Opcional, Puedes seleccionar varios)</label>
                     <div class="file-drop-area" id="dropArea" role="button" tabindex="0" aria-labelledby="lblDropArea">
                         <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -103,19 +117,80 @@
                     </div>
                 </div>
 
-                <button type="submit" id="submitBtn" class="btn-primary">
-                    <span class="btn-text">Generar Reporte Excel</span>
-                    <span class="loader hidden"></span>
-                </button>
+                <div class="action-buttons-wrapper">
+                    <button type="submit" id="submitBtn" class="btn-primary" style="flex:1;">
+                        <span class="btn-text">Generar Reporte</span>
+                        <span class="loader hidden"></span>
+                    </button>
+                    <button type="button" id="btnDescargar" class="btn-primary btn-secondary hidden" style="flex:1;">
+                        <span class="btn-text">Descargar Excel⬇️</span>
+                        <span class="loader hidden"></span>
+                    </button>
+                </div>
             </form>
 
             <div id="alertBox" class="alert hidden" role="alert" aria-live="assertive">
                 <span id="alertMsg"></span>
             </div>
+
+            <!-- Informe Visual: Productos Excluidos -->
+            <section id="visualReportSection" class="hidden" style="margin-top: 2rem;">
+                <h2 style="font-size: 1.1rem; color: var(--error); margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
+                    PRODUCTOS EXCLUIDOS BAJA ROTACION
+                </h2>
+                <div class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;">Incluir <input type="checkbox" id="selectAllDiscarded" title="Marcar todos"></th>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Rotación Mensual</th>
+                                <th>Existencia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="discardedTableBody">
+                            <!-- JS injects rows here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </main>
     </div>
 
-    <script src="/static/script.js?v=3"></script>
+    <!-- Config Modal -->
+    <div id="configModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Configuración</h3>
+                <button id="btnCloseConfig" class="modal-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Días de Pedido Predeterminado</label>
+                    <div class="select-wrapper">
+                        <select id="cfgPedidoDays">
+                            <!-- Populated in JS, matching main options -->
+                        </select>
+                        <div class="select-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg></div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Fila Predeterminada (Límite)</label>
+                    <input type="number" id="cfgNumRows" value="5000" min="1">
+                </div>
+                <div class="input-group">
+                    <label>Umbral Predeterminado</label>
+                    <input type="number" id="cfgUmbral" step="0.01" value="0.5">
+                </div>
+                <button type="button" id="btnSaveConfig" class="btn-primary" style="margin-top:0.5rem">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js?v=6"></script>
 </body>
 
 </html>

@@ -12,6 +12,80 @@ document.addEventListener('DOMContentLoaded', () => {
     const alertBox = document.getElementById('alertBox');
     const alertMsg = document.getElementById('alertMsg');
 
+    const btnDescargar = document.getElementById('btnDescargar');
+    const btnDescargarLoader = btnDescargar.querySelector('.loader');
+
+    // Config Modal Elements
+    const configModal = document.getElementById('configModal');
+    const btnOpenConfig = document.getElementById('btnOpenConfig');
+    const btnCloseConfig = document.getElementById('btnCloseConfig');
+    const btnSaveConfig = document.getElementById('btnSaveConfig');
+    const cfgPedidoDays = document.getElementById('cfgPedidoDays');
+    const cfgNumRows = document.getElementById('cfgNumRows');
+    const cfgUmbral = document.getElementById('cfgUmbral');
+
+    // Main UI Inputs
+    const mainPedidoDays = document.getElementById('pedidoDays');
+    const mainNumRows = document.getElementById('numRows');
+    const mainUmbral = document.getElementById('umbralRotacion');
+
+    // Global state for Report
+    let currentReportB64 = null;
+    let currentReportFilename = null;
+    let currentFormData = null; // Store last form data to re-use if force_included is needed
+
+    // --- CONFIGURATION LOGIC ---
+    function loadConfig() {
+        // Populate cfgPedidoDays dynamically from main list
+        cfgPedidoDays.innerHTML = mainPedidoDays.innerHTML;
+
+        const savedDays = localStorage.getItem('cfg_pedidoDays');
+        const savedRows = localStorage.getItem('cfg_numRows');
+        const savedUmbral = localStorage.getItem('cfg_umbral');
+
+        if (savedDays) { mainPedidoDays.value = savedDays; cfgPedidoDays.value = savedDays; }
+        if (savedRows) { mainNumRows.value = savedRows; cfgNumRows.value = savedRows; }
+        if (savedUmbral) { mainUmbral.value = savedUmbral; cfgUmbral.value = savedUmbral; }
+    }
+
+    loadConfig();
+
+    btnOpenConfig.addEventListener('click', () => {
+        cfgPedidoDays.value = mainPedidoDays.value;
+        cfgNumRows.value = mainNumRows.value;
+        cfgUmbral.value = mainUmbral.value;
+        configModal.classList.add('active');
+    });
+
+    btnCloseConfig.addEventListener('click', () => configModal.classList.remove('active'));
+    
+    // Close on overlay click
+    configModal.addEventListener('click', (e) => {
+        if (e.target === configModal) configModal.classList.remove('active');
+    });
+
+    btnSaveConfig.addEventListener('click', () => {
+        localStorage.setItem('cfg_pedidoDays', cfgPedidoDays.value);
+        localStorage.setItem('cfg_numRows', cfgNumRows.value);
+        localStorage.setItem('cfg_umbral', cfgUmbral.value);
+
+        mainPedidoDays.value = cfgPedidoDays.value;
+        mainNumRows.value = cfgNumRows.value;
+        mainUmbral.value = cfgUmbral.value;
+
+        configModal.classList.remove('active');
+        showAlert("Configuración guardada por defecto.", true);
+    });
+
+    // --- CHECKBOX LOGIC FOR DISCARDED --
+    const selectAllDiscarded = document.getElementById('selectAllDiscarded');
+    if (selectAllDiscarded) {
+        selectAllDiscarded.addEventListener('change', (e) => {
+            const checks = document.querySelectorAll('.discard-chk');
+            checks.forEach(chk => chk.checked = e.target.checked);
+        });
+    }
+
     // Category Elements
     const categoriesList = document.getElementById('categoriesList');
     const categoryCount = document.getElementById('categoryCount');
@@ -452,10 +526,14 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             hideAlert();
             setLoading(true);
+            btnDescargar.classList.add('hidden');
+            currentReportB64 = null;
+            currentReportFilename = null;
 
             const formData = new FormData();
             formData.append('pedido_days', document.getElementById('pedidoDays').value);
             formData.append('num_rows', document.getElementById('numRows').value);
+            formData.append('umbral', document.getElementById('umbralRotacion').value);
 
             // Append all selected files to the form data
             selectedFiles.forEach(file => {
@@ -489,34 +567,42 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(errorData.detail || "Error al generar el reporte");
                 }
 
-                // Handle File Download
-                const blob = await response.blob();
+                const responseData = await response.json();
+                
+                currentReportB64 = responseData.file_b64;
+                currentReportFilename = responseData.filename || "Pedido.xlsx";
+                currentFormData = formData; // Remember what we queried
 
-                let filename = "Pedido.xlsx";
-                const disposition = response.headers.get('Content-Disposition');
-                if (disposition && disposition.indexOf('filename=') !== -1) {
-                    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                    const matches = filenameRegex.exec(disposition);
-                    if (matches != null && matches[1]) {
-                        filename = matches[1].replace(/['"]/g, '');
-                    }
+                // Handle visual report of discarded items
+                const visualSection = document.getElementById('visualReportSection');
+                const tbody = document.getElementById('discardedTableBody');
+                
+                const discarded_list = responseData.discarded_list || [];
+                
+                if (discarded_list && discarded_list.length > 0) {
+                    tbody.innerHTML = '';
+                    discarded_list.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="text-align:center;"><input type="checkbox" class="discard-chk" value="${item.Codigo}"></td>
+                            <td>${item.Codigo}</td>
+                            <td>${item.Descripcion}</td>
+                            <td>${item.RotacionMensual}</td>
+                            <td>${item.Existencia}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    visualSection.classList.remove('hidden');
+                } else {
+                    visualSection.classList.add('hidden');
                 }
 
-                const downloadUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = downloadUrl;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
+                if (selectAllDiscarded) selectAllDiscarded.checked = false;
 
-                window.URL.revokeObjectURL(downloadUrl);
-                a.remove();
+                showAlert(`Reporte generado exitosamente. Listo para descargar.`, true);
+                btnDescargar.classList.remove('hidden');
 
-                showAlert("Reporte generado exitosamente con categorías filtradas.", true);
-                selectedFiles = [];
-                renderFileList();
-
+                // Don't clear selected files here, they might want to re-run
             } catch (error) {
                 console.error('Submit Error:', error);
                 showAlert(error.message, false);
@@ -524,5 +610,69 @@ document.addEventListener('DOMContentLoaded', () => {
                 setLoading(false);
             }
         });
+    }
+
+    if (btnDescargar) {
+        btnDescargar.addEventListener('click', async () => {
+            const checkedBoxes = document.querySelectorAll('.discard-chk:checked');
+            const forceCodes = Array.from(checkedBoxes).map(chk => chk.value);
+
+            if (forceCodes.length > 0) {
+                // Must make an overriding API call
+                try {
+                    btnDescargar.disabled = true;
+                    btnDescargarLoader.classList.remove('hidden');
+                    btnDescargar.querySelector('.btn-text').classList.add('hidden');
+
+                    const newFormData = new FormData();
+                    // Copy existing data
+                    for (let pair of currentFormData.entries()) {
+                        newFormData.append(pair[0], pair[1]);
+                    }
+                    newFormData.append('force_include_codes', forceCodes.join(','));
+
+                    const response = await fetch('/api/generate', {
+                        method: 'POST',
+                        body: newFormData
+                    });
+
+                    if (!response.ok) throw new Error("Error al incluir los items solicitados");
+                    const responseData = await response.json();
+                    
+                    await downloadBase64Exc(responseData.file_b64, responseData.filename || "Pedido.xlsx");
+                    
+                    // Uncheck them after successful override
+                    checkedBoxes.forEach(chk => chk.checked = false);
+                    if (selectAllDiscarded) selectAllDiscarded.checked = false;
+                    showAlert(`Se descargó el excel forzando inclusión de ${forceCodes.length} producto(s).`, true);
+                } catch (err) {
+                    console.error(err);
+                    showAlert(err.message, false);
+                } finally {
+                    btnDescargar.disabled = false;
+                    btnDescargarLoader.classList.add('hidden');
+                    btnDescargar.querySelector('.btn-text').classList.remove('hidden');
+                }
+            } else {
+                // No overrides, just download cached excel
+                if (currentReportB64) {
+                    await downloadBase64Exc(currentReportB64, currentReportFilename);
+                }
+            }
+        });
+    }
+
+    async function downloadBase64Exc(b64, filename) {
+        const blobResponse = await fetch(`data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${b64}`);
+        const blob = await blobResponse.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = downloadUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        a.remove();
     }
 });

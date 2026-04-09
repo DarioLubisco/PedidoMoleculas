@@ -100,7 +100,7 @@ body {
     grid-template-columns: 350px 1fr;
     gap: 2rem;
     width: 100%;
-    max-width: 1000px;
+    max-width: 1600px;
     align-items: stretch;
     z-index: 1;
     margin: 2rem 0;
@@ -515,13 +515,34 @@ input[type="number"]:focus,
 
 .btn-primary:active {
     transform: scale(0.98);
-    /* Micro-interaction scale */
 }
 
 .btn-primary:disabled {
     opacity: 0.7;
     cursor: not-allowed;
     transform: none;
+}
+
+.btn-secondary {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.btn-secondary:hover {
+    background: rgba(16, 185, 129, 0.25);
+    box-shadow: 0 10px 20px -10px rgba(16, 185, 129, 0.5);
+    transform: translateY(-1px);
+}
+
+.action-buttons-wrapper {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.action-buttons-wrapper > button {
+    margin-top: 0;
 }
 
 /* Loader Animation */
@@ -565,4 +586,130 @@ input[type="number"]:focus,
 
 .alert.hidden {
     display: none;
+}
+
+/* Report Table Styles */
+.table-container {
+    overflow-x: auto;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--glass-border);
+    background: rgba(15, 23, 42, 0.4);
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+.report-table th,
+.report-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.report-table th {
+    background: rgba(15, 23, 42, 0.8);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.report-table tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.report-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Modal and Gear Icon Styles */
+.config-btn-wrapper {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    z-index: 10;
+}
+
+.config-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.config-btn:hover {
+    color: var(--text-main);
+    transform: rotate(90deg);
+    border-color: var(--accent);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: var(--bg-dark);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius-lg);
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--error);
 }
